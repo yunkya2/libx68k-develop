@@ -1,0 +1,157 @@
+#!/bin/bash
+
+set -e -o pipefail
+
+usage()
+{
+    cat <<EOF
+usage: ${0##*/} [-o output] [options] object...
+
+options:
+  --library FILE             partial linkにライブラリFILEを追加する(複数指定可)
+  -L DIR, -LDIR              -lのライブラリ検索パスを追加する
+  -l LIB, -lLIB              partial linkにライブラリLIBを追加する
+  -u, --allow-undefined SYMBOL
+                             未解決のまま残すシンボルを許可する(複数指定可)
+  -h, --help                 このヘルプを表示する
+
+その他の引数はm68k-xelf-ldにそのまま渡される。
+EOF
+}
+
+die()
+{
+    echo "${0##*/}: $*" >&2
+    exit 1
+}
+
+need_arg()
+{
+    (($# >= 2)) || die "option $1 requires an argument"
+}
+
+outfile="a.out"
+link_args=()
+search_args=()
+libraries=()
+allowed_undefined=(
+    _stext
+    _tsr_header_end
+    _tsr_end
+    _etext
+    _edata
+    _end
+    __end
+    end
+)
+
+while (($# > 0)); do
+    case $1 in
+    -o)
+        need_arg "$@"
+        outfile=$2
+        shift 2
+        ;;
+    --library)
+        need_arg "$@"
+        libraries+=("$2")
+        shift 2
+        ;;
+    --library=*)
+        libraries+=("${1#*=}")
+        shift
+        ;;
+    -L|-l)
+        need_arg "$@"
+        if [[ $1 == -L ]]; then
+            search_args+=("-L$2")
+        else
+            libraries+=("-l$2")
+        fi
+        shift 2
+        ;;
+    -L?*)
+        search_args+=("$1")
+        shift
+        ;;
+    -l?*)
+        libraries+=("$1")
+        shift
+        ;;
+    -u|--allow-undefined)
+        need_arg "$@"
+        allowed_undefined+=("$2")
+        shift 2
+        ;;
+    -u?*)
+        allowed_undefined+=("${1#-u}")
+        shift
+        ;;
+    --allow-undefined=*)
+        allowed_undefined+=("${1#*=}")
+        shift
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    --)
+        shift
+        link_args+=("$@")
+        break
+        ;;
+    *)
+        link_args+=("$1")
+        shift
+        ;;
+    esac
+done
+
+((${#link_args[@]} > 0)) || die "no input files"
+
+tmpfile=$(mktemp "${outfile}.tmp.XXXXXX")
+trap 'rm -f "$tmpfile"' EXIT
+
+m68k-xelf-ld -r -o "$tmpfile" \
+  "${search_args[@]}" \
+  "${link_args[@]}" \
+  "${libraries[@]}" \
+  "$(m68k-xelf-gcc -print-file-name=libc-nano.a)" \
+  "$(m68k-xelf-gcc -print-file-name=libx68k.a)" \
+  "$(m68k-xelf-gcc -print-file-name=libx68kdos.a)" \
+  "$(m68k-xelf-gcc -print-file-name=libx68kiocs.a)" \
+  "$(m68k-xelf-gcc -print-file-name=libx68ktsr.a)" \
+  "$(m68k-xelf-gcc -print-file-name=libc-nano.a)" \
+  "$(m68k-xelf-gcc -print-libgcc-file-name)"
+
+unresolved=()
+while read -r symbol type _; do
+    [[ $type == U ]] || continue
+    allowed=0
+    for name in "${allowed_undefined[@]}"; do
+        if [[ $symbol == "$name" ]]; then
+            allowed=1
+            break
+        fi
+    done
+    ((allowed)) || unresolved+=("$symbol")
+done < <(m68k-xelf-nm -u -P "$tmpfile")
+
+if ((${#unresolved[@]} > 0)); then
+    echo "${0##*/}: unresolved symbols remain after partial link:" >&2
+    printf '  %s\n' "${unresolved[@]}" >&2
+    echo "Use --allow-undefined SYMBOL for references used only during initialization." >&2
+    exit 1
+fi
+
+rename_args=()
+while read -r section; do
+    rename_args+=("--rename-section" \
+                 "$section=.tsr$section,alloc,load,readonly,code,contents")
+done < <(m68k-xelf-objdump -hw "$tmpfile" |
+         awk '{print $2}' |
+         grep -E '^\.(text|rodata|data|bss)')
+
+m68k-xelf-objcopy "${rename_args[@]}" "$tmpfile"
+mv -f "$tmpfile" "$outfile"
+trap - EXIT
