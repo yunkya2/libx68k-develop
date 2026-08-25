@@ -1,0 +1,70 @@
+TARGET =  libx68k.a libx68knodos.a
+TARGET += libiocs/libx68kiocs.a
+TARGET += libdos/libx68kdos.a
+TARGET += libsocket/libsocket.a
+TARGET += libpthread/libpthread.a
+
+include Common.mk
+
+# object files needed
+OBJS += chown.o close.o creat.o execve.o fcntl.o fork.o fstat.o \
+	getpid.o gettod.o isatty.o kill.o link.o lseek.o open.o \
+	read.o readlink.o rename.o sbrk.o stat.o symlink.o times.o unlink.o \
+	wait.o write.o _exit.o system.o \
+	chdir.o mkdir.o rmdir.o getcwd.o getentropy.o \
+	opendir.o readdir.o closedir.o telldir.o seekdir.o \
+	sleep.o poll.o dup.o dup2.o
+OBJS += crt1.o crt1hupair.o _sflags.o fds.o _doserror.o _at_exit.o _dosinit.o
+OBJS += _stacksize.o _heapsize.o _crt0vars.o _crt0vars1.o
+
+OBJS_NODOS += write-nodos.o sbrk-nodos.o _nodosfnc.o
+OBJS_NODOS += _stacksize.o _heapsize.o _crt0vars-nodos.o
+
+CRT0OBJS += crt0.o crt0nodos.o crt0hupair.o
+
+all: $(TARGET) $(CRT0OBJS)
+
+libiocs/libx68kiocs.a:
+	make -C libiocs all
+
+libdos/libx68kdos.a:
+	make -C libdos all
+
+libsocket/libsocket.a:
+	make -C libsocket all
+
+libpthread/libpthread.a:
+	make -C libpthread all
+
+libx68k.a: $(OBJS)
+	$(AR) $(ARFLAGS) $@ $^
+	$(RANLIB) $@
+
+libx68knodos.a: $(OBJS_NODOS)
+	$(AR) $(ARFLAGS) $@ $^
+	$(RANLIB) $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+%.o: %.S
+	$(AS) $(ASFLAGS) -c $<
+
+%hupair.o: %.c
+	$(CC) $(CFLAGS) -o $@ -DSUPPORT_HUPAIR -c $<
+
+%hupair.o: %.S
+	$(AS) $(ASFLAGS) -o $@ -DSUPPORT_HUPAIR -c $<
+
+clean:
+	make -C libiocs clean
+	make -C libdos clean
+	make -C libsocket clean
+	make -C libpthread clean
+	-rm -f *.o $(TARGET)
+
+.PHONY: all clean
+.PHONY: libiocs/libx68kiocs.a
+.PHONY: libdos/libx68kdos.a
+.PHONY: libsocket/libsocket.a
+.PHONY: libpthread/libpthread.a
