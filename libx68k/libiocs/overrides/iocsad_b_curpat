@@ -12,8 +12,7 @@ _iocs_b_curpat:
 @gcc 	movel	%sp@(8), %d2
 @xc 	movel	%sp@(4), %d2
 	tst.w	%d2
-@gcc 	beqs	1f			| mode=
-@xc 	beqs	1f
+	beqs	1f
 	moveq	#2, %d1
 	moveq	#-83, %d0
 	trap	#15

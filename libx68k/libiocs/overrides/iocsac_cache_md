@@ -10,21 +10,18 @@
 _iocs_cache_md:
 @gcc 	move.l	%d2, %sp@-
 @gcc 	move.l	%sp@(8), %d2		| mode
-@gcc 	moveq	#3, %d1			| キャッシュ消去
-@xc 	move.l	%sp@(4), %d2
-@xc 	moveq	#3, %d1
+@xc 	move.l	%sp@(4), %d2		| mode
 	move.l	%d2, %d0
+
+	moveq	#3, %d1			| キャッシュ消去
 	addq.l	#1, %d0
-@gcc 	beqs	1f			| mode=-1 キャッシュ消去
-@gcc 	moveq	#2, %d1			| キャッシュをSRAMの設定値にする
-@xc 	beqs	1f
-@xc 	moveq	#2, %d1
+	beqs	1f			| mode=-1 キャッシュ消去
+
+	moveq	#2, %d1			| キャッシュをSRAMの設定値にする
 	addq.l	#1, %d0
-@gcc 	bnes	1f			| mode=-2 キャッシュをSRAMの設定値にする
-@gcc 					| (beqの間違い?)
-@gcc 	moveq	#4, %d1			| キャッシュの設定
-@xc 	bnes	1f
-@xc 	moveq	#4, %d1
+	beqs	1f			| mode=-2 キャッシュをSRAMの設定値にする
+
+	moveq	#4, %d1			| キャッシュの設定
 1:
 	moveq	#-84, %d0
 	trap	#15
