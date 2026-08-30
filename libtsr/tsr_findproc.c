@@ -37,7 +37,8 @@ tsr_process_t tsr_findproc(const char *name)
 
     do {
         tsr_process_t th = (tsr_process_t)((char *)mep + sizeof(struct dos_mep) + sizeof(struct dos_psp));
-        if (((int)mep->parent_mp & 0xff000000) == 0xff000000) {
+        if (((int)mep->parent_mp & 0xff000000) == 0xff000000 &&
+            (void *)&th[1] < (void *)mep->block_end) {
             if (th->signature == TSR_SIGNATURE &&
                 strncmp(name, th->name, sizeof(th->name)) == 0) {
                 tsr_super(ssp);
