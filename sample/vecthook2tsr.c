@@ -14,7 +14,7 @@ enum {
 
 int vecthook2_dos_gets_handler(void *arg);
 void vecthook2_iocs_keyinp_handler(struct iocs_regs *regs);
-static void vecthook2_key_input_handler(void) __attribute__((interrupt));
+static void vecthook2_key_input_handler(void) __attribute__((__interrupt__));
 
 TSR_PROCESS(VECTHOOK2_NAME);
 TSR_DOSHANDLER(vecthook2_dos_gets_entry, vecthook2_dos_gets_handler);

@@ -25,7 +25,7 @@ enum {
 /* TSR_*HANDLER内のアセンブラから参照するため、Cハンドラは外部リンケージにする。 */
 int dos_gets_handler(void *arg);
 void iocs_keyinp_handler(struct iocs_regs *regs);
-static void key_input_handler(void) __attribute__((interrupt));
+static void key_input_handler(void) __attribute__((__interrupt__));
 
 /* 非デバイスドライバ型TSRを識別するヘッダを定義する。 */
 TSR_PROCESS(TSR_NAME);
