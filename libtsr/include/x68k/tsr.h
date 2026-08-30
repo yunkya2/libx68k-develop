@@ -19,7 +19,7 @@ __BEGIN_DECLS
 struct tsr_devheader {
     struct dos_devheader header;
     void        *data;          // +0x16.l  デバイス固有データ
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 typedef struct tsr_devheader *tsr_device_t;
 
 struct tsr_devheader_first {
@@ -27,7 +27,7 @@ struct tsr_devheader_first {
     uint32_t    signature;      // +0x1a.l  TSR_SIGNATURE
     void        *memblock;      // +0x1e.l  常駐メモリブロック
     struct dos_devheader *tail; // +0x22.l  末尾のデバイスヘッダ
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 
 #define TSR_DEVHEADER_ID(_id)       _devheader_ ## _id
 #define TSR_DEVHEADER_ID_STR(_id)   "_devheader_" #_id
@@ -35,7 +35,7 @@ struct tsr_devheader_first {
 #define TSR_DEFDEVHEADER_FIRST(_attr, _name, _next, _tail) \
     extern void _strategy_asm_(void); \
     extern void _interrupt_asm_(void); \
-    __attribute__((section(".header"))) \
+    __attribute__((__section__(".header"))) \
     struct tsr_devheader_first TSR_DEVHEADER_ID() = { \
         { { (struct dos_devheader *)(_next), (_attr), \
               (void *)_strategy_asm_, (void *)_interrupt_asm_, \
@@ -47,7 +47,7 @@ struct tsr_devheader_first {
 #define TSR_DEFDEVHEADER(_attr, _name, _id, _next) \
     extern void _strategy_asm_ ## _id(void); \
     extern void _interrupt_asm_ ## _id(void); \
-    __attribute__((section(".header.1"))) \
+    __attribute__((__section__(".header.1"))) \
     struct tsr_devheader TSR_DEVHEADER_ID(_id) = { \
         { (struct dos_devheader *)(_next), (_attr), \
           (void *)_strategy_asm_ ## _id, (void *)_interrupt_asm_ ## _id, \
@@ -131,7 +131,7 @@ tsr_device_t tsr_finddev(const char *name);
 //  tsrend: 常駐部の終了アドレス (NULLなら既定の常駐終了アドレスを使う)
 //  code: 終了コード
 //  戻り値: なし (この関数は戻らない)
-__attribute__((noreturn))
+__attribute__((__noreturn__))
 void tsr_keepdev(void *tsrend, int code);
 
 // 既定の常駐範囲の終了アドレスを返す
@@ -179,7 +179,7 @@ struct tsr_process {
     char        name[16];       // +0x04.b  TSR名
     void        *memblock;      // +0x14.l  常駐メモリブロック
     void        *data;          // +0x18.l  TSR固有データ
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 typedef struct tsr_process *tsr_process_t;
 
 #define TSR_PROCHEADER_ID   _procheader_
@@ -190,7 +190,7 @@ typedef struct tsr_process *tsr_process_t;
 // 非デバイスドライバ型の常駐プロセスを定義する
 //  _name: 常駐プロセス名
 #define TSR_PROCESS(_name) \
-    __attribute__((section(".header"))) \
+    __attribute__((__section__(".header"))) \
     struct tsr_process TSR_PROCHEADER_ID = { \
         TSR_SIGNATURE, (_name), 0, 0 \
     }
@@ -204,7 +204,7 @@ tsr_process_t tsr_findproc(const char *name);
 //  tsrend: 常駐部の終了アドレス (NULLなら既定の常駐終了アドレスを使う)
 //  code: 終了コード
 //  戻り値: なし (この関数は戻らない)
-__attribute__((noreturn))
+__attribute__((__noreturn__))
 void tsr_keepproc(void *tsrend, int code);
 
 // procの常駐メモリを解放する
@@ -300,7 +300,7 @@ int tsr_formatdrive(struct dos_dpb *dpb, tsr_preparesect_t *preparesect,
 // 常駐プログラム用のヒープを定義する
 //  _size: ヒープサイズ (バイト)
 #define TSR_HEAP(_size) \
-    __attribute__((aligned(4))) \
+    __attribute__((__aligned__(4))) \
     char __heap[_size]; \
     char *_HSTA = __heap; \
     char *_HEND = __heap + _size; \
@@ -309,7 +309,7 @@ int tsr_formatdrive(struct dos_dpb *dpb, tsr_preparesect_t *preparesect,
 // 常駐プログラム用のスタックを定義する
 //  _size: スタックサイズ (バイト)
 #define TSR_STACK(_size) \
-    __attribute__((aligned(4))) \
+    __attribute__((__aligned__(4))) \
     char __stack[_size]; \
     char *_SSTA = __stack; \
     char *_SEND = __stack + _size;

@@ -10,7 +10,7 @@ struct dos_devheader {
     void *strategy;             // +0x06.l ストラテジルーチン
     void *interrupt;            // +0x0a.l 割り込みルーチン
     char name[8];               // +0x0e.b デバイス名
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 
 // Request header structure
 struct dos_req_header {
@@ -24,7 +24,7 @@ struct dos_req_header {
     void *addr;                 // +0x0e.l Buffer address
     uint32_t status;            // +0x12.l Bytes / Buffer / Result status
     void *fcb;                  // +0x16.l FCB
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 
 // BIOS Parameter Block (FAT12/FAT16)
 struct dos_bpb {
@@ -37,7 +37,7 @@ struct dos_bpb {
     uint8_t mediabyte;          // +0x0a.b メディアバイト
     uint8_t fatsects;           // +0x0b.b FAT領域1個あたりのセクタ数
     uint32_t sectslong;         // +0x0c.l 全セクタ数 (long)
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 
 // Drive Parameter Block (remote drive common part)
 struct dos_dpb_remote {
@@ -46,7 +46,7 @@ struct dos_dpb_remote {
     struct dos_devheader *devheader;    // +0x02.l デバイスヘッダへのポインタ
     struct dos_dpb *next;               // +0x06.l 次のDPBへのポインタ
     uint16_t sectbytes;                 // +0x0a.w 1セクタあたりのバイト数 (=0)
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 
 // Drive Parameter Block
 struct dos_dpb {
@@ -79,7 +79,7 @@ struct dos_dpb {
     uint32_t schfil_nextsect;           // +0x30.l
     uint16_t schfil_remsect;            // +0x34.w
     uint16_t schfil_offset;             // +0x36.w
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 
 // Current Directory Table
 struct dos_curdir {
@@ -92,6 +92,6 @@ struct dos_curdir {
     struct dos_dpb *dpb;                // +0x46.l DPBへのポインタ
     uint16_t curfat;                    // +0x4a.w
     uint16_t pathlen;                   // +0x4c.w
-} __attribute__((packed, aligned(2)));
+} __attribute__((__packed__, __aligned__(2)));
 
 #endif /* _DOS_INTERNAL_H_ */

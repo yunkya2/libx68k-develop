@@ -30,7 +30,7 @@
 //  tsrend: 常駐部の終了アドレス (NULLなら既定の常駐終了アドレスを使う)
 //  code: 終了コード
 //  戻り値: なし (この関数は戻らない)
-__attribute__((noreturn))
+__attribute__((__noreturn__))
 void tsr_keepproc(void *tsrend, int code)
 {
     extern struct tsr_process TSR_PROCHEADER_ID;
