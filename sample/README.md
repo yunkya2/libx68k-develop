@@ -15,6 +15,16 @@ make
 ライブラリとヘッダをインストール済みで、サンプルだけをビルドする場合は
 トップディレクトリから `make -C sample` を実行します。
 
+libdos/libiocsの代表的なAPIについて呼び出し形式を確認する場合は、次のターゲットを
+使用します。同じ `apicall_test.c` を、ライブラリ関数呼び出し、inline関数呼び出し、
+inline関数を通常関数化した呼び出しの3通りでコンパイル・リンクします。
+
+```sh
+make check-api-calls
+# または
+make -C sample check-api-calls
+```
+
 ## サンプルの内容
 
 ### minidrv

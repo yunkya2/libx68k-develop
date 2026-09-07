@@ -67,6 +67,9 @@ TSR_SAMPLES = multidrv.x localdrv.x remotedrv.x
 TSR_SAMPLES += vecthook1.x vecthook2.x
 TSR_SAMPLES += minidrv1.sys minidrv2.x minidrv3.x
 
+API_CHECKS = api-check-lib.x api-check-inline.x api-check-noinline.x
+API_CHECK_CFLAGS = $(filter-out -O% -fno-inline -D__IOCS_INLINE__ -D__DOS_INLINE__,$(CFLAGS))
+
 all: $(TSR_SAMPLES)
 
 %.x: %.o
@@ -102,6 +105,22 @@ vecthook2.x: vecthook2main.o vecthook2.o
 vecthook2.o: vecthook2tsr.o
 	$(TSRGEN) -o $(abspath $@) $(abspath $^)
 
+# 同じソースを、外部ライブラリ呼び出し、inline展開、inline関数の
+# 通常関数化の3通りでコンパイル・リンクする。
+check-api-calls: $(API_CHECKS)
+
+api-check-lib.o: apicall_test.c
+	$(CC) $(API_CHECK_CFLAGS) -Os -c -o $@ $<
+
+api-check-inline.o: apicall_test.c
+	$(CC) $(API_CHECK_CFLAGS) -D__IOCS_INLINE__ -D__DOS_INLINE__ -Os -c -o $@ $<
+
+api-check-noinline.o: apicall_test.c
+	$(CC) $(API_CHECK_CFLAGS) -D__IOCS_INLINE__ -D__DOS_INLINE__ -O0 -fno-inline -c -o $@ $<
+
+$(API_CHECKS): %.x: %.o
+	$(LD) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
@@ -113,4 +132,4 @@ clean:
 
 -include *.d
 
-.PHONY: all clean
+.PHONY: all check-api-calls clean
