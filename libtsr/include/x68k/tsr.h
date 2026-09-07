@@ -430,13 +430,13 @@ static inline int tsr_doscall(void *entry, void *arg)
 {
     register int res __asm__("d0");
     register void *_a0 __asm__("a0") = entry;
-    register void *_a6 __asm__("a6") = arg;
     __asm__ volatile (
         "movem.l %%d2-%%d7/%%a2-%%a6,%%sp@-\n\t"
+        "movea.l %2,%%a6\n\t"
         "jbsr    %1@\n\t"
         "movem.l %%sp@+,%%d2-%%d7/%%a2-%%a6\n"
         : "=d"(res), "+a"(_a0)
-        : "a"(_a6)
+        : "a"(arg)
         : "d1", "a1", "cc", "memory"
     );
     return res;
