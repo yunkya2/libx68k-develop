@@ -42,23 +42,18 @@ LDFLAGS += -Wl,-Map,$(basename $@).map -specs=nano.specs
 LIBTSR = -lx68ktsr
 
 ##############################################################################
-# サンプルのビルドに開発中のライブラリ、コマンドを使用するための設定
+# サンプルのビルドに開発中のlibtsr、コマンドを使用するための設定
 LIB_MODE ?= local
 
 ifeq ($(LIB_MODE),local)
 LOCAL_LIBDIR := $(abspath ../lib)
-LOCAL_INCLUDEDIR := $(abspath ../include)
+LOCAL_INCLUDEDIR := $(abspath ../libtsr/include)
 LOCAL_BINDIR := $(abspath ../bin)
 export PATH := $(LOCAL_BINDIR):$(PATH)
-GCC_SPECS += -specs=$(LOCAL_LIBDIR)/x68k.specs
 CFLAGS += -I$(LOCAL_INCLUDEDIR)
 ASFLAGS += -I$(LOCAL_INCLUDEDIR)
-LDFLAGS += -L$(LOCAL_LIBDIR)
-LDFLAGS += -B$(LOCAL_LIBDIR)/ -B$(LOCAL_BINDIR)/
 LIBTSR = $(LOCAL_LIBDIR)/libx68ktsr.a
-LIBS += $(LOCAL_LIBDIR)/libx68k.a
 TSRGEN = cd $(LOCAL_LIBDIR) && $(CROSS)tsrgen
-STARTFILES = -nostartfiles $(LOCAL_LIBDIR)/x68kcrt0.o
 endif
 
 ##############################################################################

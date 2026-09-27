@@ -13,7 +13,7 @@ CFLAGS = -Os -g $(INC) $(DEFS) -MMD -MP
 ASFLAGS = $(INC) $(DEFS) -MMD -MP
 BUILDDIR = build
 
-INC += -Iinclude -I$(INCLUDEDIR) -I.
+INC += -Iinclude -I.
 
 OBJS = tsr_finddev.o tsr_keepdev.o tsr_getresidentend.o \
        tsr_setdevdata.o tsr_getdevdata.o tsr_freedev.o \
@@ -31,13 +31,11 @@ $(BUILDDIR)/libx68ktsr.a: $(OBJS)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-install: $(BUILDDIR)/libx68ktsr.a include/x68k/tsr.h include/x68k/dos_internal.h m68k-xelf-tsrgen m68k-xelf-ld.x | $(LIBDIR) $(INCLUDEDIR)/x68k $(BINDIR)
+install: $(BUILDDIR)/libx68ktsr.a include/x68k/tsr.h include/x68k/dos_internal.h m68k-xelf-tsrgen | $(LIBDIR) $(INCLUDEDIR)/x68k $(BINDIR)
 	cp -p $(BUILDDIR)/libx68ktsr.a $(LIBDIR)/libx68ktsr.a
 	cp -p include/x68k/tsr.h $(INCLUDEDIR)/x68k/tsr.h
 	cp -p include/x68k/dos_internal.h $(INCLUDEDIR)/x68k/dos_internal.h
 	cp -p m68k-xelf-tsrgen $(BINDIR)/m68k-xelf-tsrgen
-	cp -p m68k-xelf-ld.x $(BINDIR)/m68k-xelf-ld.x
-	ln -sf m68k-xelf-ld.x $(BINDIR)/ld.x
 
 $(BUILDDIR) $(LIBDIR) $(INCLUDEDIR)/x68k $(BINDIR):
 	mkdir -p $@
