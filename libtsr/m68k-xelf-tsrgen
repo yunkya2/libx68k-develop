@@ -9,6 +9,7 @@ usage: ${0##*/} [-o output] [options] object...
 
 options:
   --libc nano|standard       Cライブラリを選ぶ(既定: nano)
+  --libtsr FILE              使用するlibtsrアーカイブを指定する
   --library FILE             partial linkにライブラリFILEを追加する(複数指定可)
   -L DIR, -LDIR              -lのライブラリ検索パスを追加する
   -l LIB, -lLIB              partial linkにライブラリLIBを追加する
@@ -33,6 +34,7 @@ need_arg()
 
 outfile="a.out"
 libc=nano
+libtsr_archive=
 link_args=()
 search_args=()
 libraries=()
@@ -61,6 +63,15 @@ while (($# > 0)); do
         ;;
     --libc=*)
         libc=${1#*=}
+        shift
+        ;;
+    --libtsr)
+        need_arg "$@"
+        libtsr_archive=$2
+        shift 2
+        ;;
+    --libtsr=*)
+        libtsr_archive=${1#*=}
         shift
         ;;
     --library)
@@ -126,6 +137,15 @@ case $libc in
     *) die "invalid --libc value: $libc (expected nano or standard)" ;;
 esac
 
+if [[ -z $libtsr_archive ]]; then
+    script_dir=$(cd -- "$(dirname -- "$0")" && pwd -P)
+    if [[ -f $script_dir/../lib/libx68ktsr.a ]]; then
+        libtsr_archive=$script_dir/../lib/libx68ktsr.a
+    else
+        libtsr_archive=$(m68k-xelf-gcc -print-file-name=libx68ktsr.a)
+    fi
+fi
+
 tmpfile=$(mktemp "${outfile}.tmp.XXXXXX")
 trap 'rm -f "$tmpfile"' EXIT
 
@@ -137,7 +157,7 @@ m68k-xelf-ld -r -o "$tmpfile" \
   "$(m68k-xelf-gcc -print-file-name=libx68k.a)" \
   "$(m68k-xelf-gcc -print-file-name=libx68kdos.a)" \
   "$(m68k-xelf-gcc -print-file-name=libx68kiocs.a)" \
-  "$(m68k-xelf-gcc -print-file-name=libx68ktsr.a)" \
+  "$libtsr_archive" \
   "$(m68k-xelf-gcc -print-file-name="$libc_archive")" \
   "$(m68k-xelf-gcc -print-libgcc-file-name)"
 
