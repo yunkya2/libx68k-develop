@@ -8,6 +8,7 @@ usage()
 usage: ${0##*/} [-o output] [options] object...
 
 options:
+  --libc nano|standard       Cライブラリを選ぶ(既定: nano)
   --library FILE             partial linkにライブラリFILEを追加する(複数指定可)
   -L DIR, -LDIR              -lのライブラリ検索パスを追加する
   -l LIB, -lLIB              partial linkにライブラリLIBを追加する
@@ -31,6 +32,7 @@ need_arg()
 }
 
 outfile="a.out"
+libc=nano
 link_args=()
 search_args=()
 libraries=()
@@ -51,6 +53,15 @@ while (($# > 0)); do
         need_arg "$@"
         outfile=$2
         shift 2
+        ;;
+    --libc)
+        need_arg "$@"
+        libc=$2
+        shift 2
+        ;;
+    --libc=*)
+        libc=${1#*=}
+        shift
         ;;
     --library)
         need_arg "$@"
@@ -109,6 +120,12 @@ done
 
 ((${#link_args[@]} > 0)) || die "no input files"
 
+case $libc in
+    nano) libc_archive=libc-nano.a ;;
+    standard) libc_archive=libc.a ;;
+    *) die "invalid --libc value: $libc (expected nano or standard)" ;;
+esac
+
 tmpfile=$(mktemp "${outfile}.tmp.XXXXXX")
 trap 'rm -f "$tmpfile"' EXIT
 
@@ -116,12 +133,12 @@ m68k-xelf-ld -r -o "$tmpfile" \
   "${search_args[@]}" \
   "${link_args[@]}" \
   "${libraries[@]}" \
-  "$(m68k-xelf-gcc -print-file-name=libc-nano.a)" \
+  "$(m68k-xelf-gcc -print-file-name="$libc_archive")" \
   "$(m68k-xelf-gcc -print-file-name=libx68k.a)" \
   "$(m68k-xelf-gcc -print-file-name=libx68kdos.a)" \
   "$(m68k-xelf-gcc -print-file-name=libx68kiocs.a)" \
   "$(m68k-xelf-gcc -print-file-name=libx68ktsr.a)" \
-  "$(m68k-xelf-gcc -print-file-name=libc-nano.a)" \
+  "$(m68k-xelf-gcc -print-file-name="$libc_archive")" \
   "$(m68k-xelf-gcc -print-libgcc-file-name)"
 
 unresolved=()

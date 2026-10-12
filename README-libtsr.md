@@ -407,6 +407,13 @@ m68k-xelf-tsrgen -o resident.o resident-src.o -L path/to/lib -lfoo
 `--library`、`-L`、`-l` はそれぞれ複数指定できます。アーカイブのパスを通常の位置引数として
 渡す従来の形式も、リンカ引数としてそのまま利用できます。
 
+Cライブラリは既定で `libc-nano.a` を使います。標準の `libc.a` を使う場合は
+`--libc=standard` を指定します。`--libc=nano` で既定の設定を明示することもできます。
+
+```sh
+m68k-xelf-tsrgen --libc=standard -o resident.o resident-src.o
+```
+
 partial link後にstrongな未解決シンボルが残っている場合、ツールはエラー終了します。
 これにより、常駐後に呼ばれるコードが非常駐部の関数や変数を参照することを防ぎます。
 最終リンク時にリンカスクリプトが定義するシンボルとweak未解決シンボルは検査対象外となります。
