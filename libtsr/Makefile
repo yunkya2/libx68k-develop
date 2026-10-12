@@ -31,11 +31,20 @@ $(BUILDDIR)/libx68ktsr.a: $(OBJS)
 	$(AR) rcs $@ $^
 	$(RANLIB) $@
 
-install: $(BUILDDIR)/libx68ktsr.a include/x68k/tsr.h include/x68k/dos_internal.h m68k-xelf-tsrgen | $(LIBDIR) $(INCLUDEDIR)/x68k $(BINDIR)
-	cp -p $(BUILDDIR)/libx68ktsr.a $(LIBDIR)/libx68ktsr.a
-	cp -p include/x68k/tsr.h $(INCLUDEDIR)/x68k/tsr.h
-	cp -p include/x68k/dos_internal.h $(INCLUDEDIR)/x68k/dos_internal.h
-	cp -p m68k-xelf-tsrgen $(BINDIR)/m68k-xelf-tsrgen
+install: $(LIBDIR)/libx68ktsr.a $(INCLUDEDIR)/x68k/tsr.h \
+         $(INCLUDEDIR)/x68k/dos_internal.h $(BINDIR)/m68k-xelf-tsrgen
+
+$(LIBDIR)/libx68ktsr.a: | $(BUILDDIR)/libx68ktsr.a $(LIBDIR)
+	cp -p $(BUILDDIR)/libx68ktsr.a $@
+
+$(INCLUDEDIR)/x68k/tsr.h: | include/x68k/tsr.h $(INCLUDEDIR)/x68k
+	cp -p include/x68k/tsr.h $@
+
+$(INCLUDEDIR)/x68k/dos_internal.h: | include/x68k/dos_internal.h $(INCLUDEDIR)/x68k
+	cp -p include/x68k/dos_internal.h $@
+
+$(BINDIR)/m68k-xelf-tsrgen: | m68k-xelf-tsrgen $(BINDIR)
+	cp -p m68k-xelf-tsrgen $@
 
 $(BUILDDIR) $(LIBDIR) $(INCLUDEDIR)/x68k $(BINDIR):
 	mkdir -p $@
@@ -47,9 +56,7 @@ $(BUILDDIR)/%.o: %.S | $(BUILDDIR)
 	$(AS) $(ASFLAGS) -c -o $@ $<
 
 clean:
-	-rm -rf $(BUILDDIR)
-	-rm -f $(LIBDIR)/libx68ktsr.a $(INCLUDEDIR)/x68k/tsr.h $(INCLUDEDIR)/x68k/dos_internal.h
-	-rm -f $(BINDIR)/m68k-xelf-tsrgen $(BINDIR)/m68k-xelf-ld.x $(BINDIR)/ld.x
+	-rm -rf $(BUILDDIR) $(LIBDIR) $(INCLUDEDIR) $(BINDIR)
 
 -include $(BUILDDIR)/*.d
 
