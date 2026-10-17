@@ -1,6 +1,5 @@
 *.o
 *.x
-!/libtsr/m68k-xelf-ld.x
 *.elf
 *.d
 *.map

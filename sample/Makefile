@@ -46,9 +46,9 @@ LIBTSR = -lx68ktsr
 LIB_MODE ?= local
 
 ifeq ($(LIB_MODE),local)
-LOCAL_LIBDIR := $(abspath ../lib)
+LOCAL_LIBDIR := $(abspath ../libtsr/lib)
 LOCAL_INCLUDEDIR := $(abspath ../libtsr/include)
-LOCAL_BINDIR := $(abspath ../bin)
+LOCAL_BINDIR := $(abspath ../libtsr/bin)
 export PATH := $(LOCAL_BINDIR):$(PATH)
 CFLAGS += -I$(LOCAL_INCLUDEDIR)
 ASFLAGS += -I$(LOCAL_INCLUDEDIR)

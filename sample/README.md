@@ -1,7 +1,7 @@
 # libtsr サンプル
 
 このディレクトリにはlibtsrの使用例を収録しています。
-libtsrのAPI仕様は [README-libtsr.md](../README-libtsr.md) を参照してください。
+libtsrのAPI仕様は [libtsr の API リファレンス](https://github.com/yunkya2/libtsr-x68k/blob/main/README-libtsr.md) を参照してください。
 
 ## ビルド
 

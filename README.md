@@ -7,7 +7,7 @@
 
 ## libtsr
 
-`libtsr/` は、Human68kのメモリ常駐プログラムやデバイスドライバをC言語で実装するためのライブラリです。以下のような機能を提供しています。
+`libtsr/` は [libtsr-x68k](https://github.com/yunkya2/libtsr-x68k) のサブモジュールです。Human68kのメモリ常駐プログラムやデバイスドライバをC言語で実装するためのライブラリで、以下のような機能を提供しています。
 
 - デバイスドライバで必要となるデバイスヘッダの定義
 - デバイスドライバのCONFIG.SYS登録とHuman68k起動後の登録の両立
@@ -18,7 +18,7 @@
 - DOS/IOCS/割り込みベクタの変更と復帰
 - DOS/IOCS/割り込みサービスのC言語による記述、C言語からの呼び出し
 
-APIの詳細は [README-libtsr.md](README-libtsr.md) を参照してください。
+APIの詳細は [libtsr の API リファレンス](https://github.com/yunkya2/libtsr-x68k/blob/main/README-libtsr.md) を参照してください。
 
 
 ## sample
@@ -29,14 +29,15 @@ APIの詳細は [README-libtsr.md](README-libtsr.md) を参照してください
 
 
 ## ビルド方法
-[elf2x68k](https://github.com/yunkya2/elf2x68k) がインストールされている環境で、次のコマンドを実行します。
+[elf2x68k](https://github.com/yunkya2/elf2x68k) がインストールされている環境で、サブモジュールを取得してからビルドします。
 
 ```sh
+git submodule update --init
 make
 ```
 
 `make`はlibtsr、sampleの順にビルドします。
-libtsrの公開ヘッダとライブラリは `include/`および`lib/`、Human68k用のサンプル実行ファイル（`.x`）は `sample/`に生成されます。
+libtsrの公開ヘッダとライブラリは `libtsr/include/` および `libtsr/lib/`、Human68k用のサンプル実行ファイル（`.x`）は `sample/` に生成されます。
 
 生成物を削除するには次を実行します。
 
